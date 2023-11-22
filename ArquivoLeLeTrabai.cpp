@@ -315,7 +315,7 @@ int ValidarCPF(char cpf2[11]) //validação de cpf
 }
 
 	
-void CadastroCliente() //cadastro Cliente OK
+ void CadastroCliente() //cadastro Cliente OK
 {
 	tpCliente Cli;
 	int pos, i, j, x;
@@ -1101,7 +1101,102 @@ void ExcluirProdutoEstoque(void)
 	getch();	
 					
 }
-
+void ExclusaoLogProd(void)
+{
+	TpProduto Reg;
+	int pos;
+	FILE *PtrProd = fopen("Produto.dat","rb+");
+	printf("### Exclusao Logica De Produtos ###");
+	printf("Digite o Cod: ");
+	scanf("%d",&Reg.Cod);
+	while (Reg.Cod>0)
+	{
+		pos = BuscaProduto(PtrProd,Reg.Cod);
+		if (pos==-1)
+			printf("Produto nao Cadastrado!");
+		else
+			{
+				gotoxy(34,14);
+				printf("Detalhes do Registro: ");
+				//fseek(Ptr,deslocamento Bytes,a partir de);
+				fseek(PtrProd,pos,0);
+				fread(&Reg,sizeof(tpProduto),1,PtrProd);
+				gotoxy(34,15);
+				printf("Codigo: %d",Reg.Cod);
+				gotoxy(34,16);
+				printf("Nome: %s",Reg.Descr);
+				gotoxy(34,17);
+				printf("Preco: R$ %.2f",Reg.Preco);
+				gotoxy(34,18);
+				printf("Estoque: %d",Reg.Estoque);
+				gotoxy(34,19);
+				printf("Validade; %d/%d/%d",Reg.Valid.d,Reg.Valid.m,Reg.Valid.a);
+				gotoxy(34,20);
+				printf("Codigo fornecedor: %d",Reg.CodForn);
+				
+				printf("\nConfirma Exclusao (S/N)? ");
+				if(toupper(getche())=='S')
+				{
+					Reg.Status = 'I'; // Inativo
+					fseek(PtrFunc,pos,0);
+					fwrite(&Reg,sizeof(TpProduto),1,PtrProduto);
+					printf(" Registro Deletado Logicamente");
+				}
+			}
+		getch();
+		printf("Digite o Cod: ");
+		scanf("%d",&Reg.Cod);
+	}
+	fclose(PtrProd);
+}
+void RecuperarLog(void) 
+{
+	TpFunc Reg;
+	int pos;
+	FILE *PtrProd = fopen("Produto.dat","rb+");
+	printf("### Recuperação Logica De Produto ###");
+	printf("Digite o Cod: ");
+	scanf("%d",&Reg.Cod);
+	while (Reg.Cod>0)
+	{
+		pos = BuscaProduto(PtrProd,Reg.Cod);
+		if (pos==-1)
+			printf("Produto nao Cadastrado!");
+		else
+			{
+				gotoxy(34,14);
+				printf("Detalhes do Registro: ");
+				//fseek(Ptr,deslocamento Bytes,a partir de);
+				fseek(PtrProd,pos,0);
+				fread(&Reg,sizeof(tpProduto),1,PtrProd);
+				gotoxy(34,15);
+				printf("Codigo: %d",Reg.Cod);
+				gotoxy(34,16);
+				printf("Nome: %s",Reg.Descr);
+				gotoxy(34,17);
+				printf("Preco: R$ %.2f",Reg.Preco);
+				gotoxy(34,18);
+				printf("Estoque: %d",Reg.Estoque);
+				gotoxy(34,19);
+				printf("Validade; %d/%d/%d",Reg.Valid.d,Reg.Valid.m,Reg.Valid.a);
+				gotoxy(34,20);
+				printf("Codigo fornecedor: %d",Reg.CodForn);
+				
+				printf("\nConfirma para Recuperar (S/N)? ");
+				if(toupper(getche())=='S')
+				{
+					Reg.Status = 'A'; // Ativo
+					fseek(PtrProd,pos,0);
+					fwrite(&Reg,sizeof(TpProduto),1,PtrProd);
+					printf(" Registro Recuperado Logicamente");
+				}
+			}
+		getch();
+		printf("Digite o Cod: ");
+		scanf("%d",&Reg.Cod);
+	}
+	fclose(PtrProd);
+}
 void RealizarVendas(int &cont) //vendas
 {
  	tpVendas TabVendas;
