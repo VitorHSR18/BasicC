@@ -1646,7 +1646,93 @@ void ExclusaoLogProduto(void)
 	}
 	fclose(PtrForn);
 }
-
+void ExcluirLogVendas(void)
+{
+	FILE *PtrVenda = fopen("Vendas.dat","rb");
+	int pos, i, j, fim=1,CodV;
+	char Cod[TF];
+	tpCliente Cli;
+	tpVendas Venda;
+	tpVendasProd VendProd;
+	gotoxy(36,9);
+	printf("### Exclusao fisica de Vendas ###"); 
+	if (PtrVenda == NULL) //O Arquivo não existe!
+	{
+		gotoxy(34,12);
+		printf("Erro de abertura!");
+	}			
+	else
+	{
+		gotoxy(65,11);
+		printf("Sair '0' ");
+		gotoxy(34,12);
+		printf("COD de Venda: ");
+		fflush(stdin);
+		scanf("%d",&CodV);
+		while(fim!=0)
+		{
+			while(CodV > 0 && fim==1)
+			{
+				pos = BuscaVenda(PtrVenda,CodV);
+				if (pos==-1)
+				{	gotoxy(34,14);
+					printf("Venda nao encontrada!");
+					getch();
+				}
+				else
+				{
+					gotoxy(34,14);
+					printf("Detalhes do Registro: ");
+					//fseek(Ptr,deslocamento Bytes,a partir de);
+					fseek(PtrVenda,pos,0);
+					fread(&Venda,sizeof(tpVendas),1,PtrVenda);
+					gotoxy(34,15);
+					printf("Codigo: d", Venda.CodVenda);
+					gotoxy(34,16);
+					printf("CPF: %s", Venda.CPF);
+					gotoxy(34,17);
+					printf("Data: %d/%d%/d", Venda.Data.d,Venda.Data.m,Venda.Data.a);
+					gotoxy(34,18);
+					printf("Valor total: %.2f", Venda.TotVenda);
+					
+					gotoxy(34,22);
+					printf("Confirma Exclusao (S/N)? ");
+					if(toupper(getche())=='S')
+					{  Venda.status = 'I'; // Inativo
+						fseek(PtrVenda,pos,0);
+						fwrite(&Venda,sizeof(tpVendas),1,PtrVenda);
+						printf(" Registro Deletado Logicamente");
+						FILE *PtrCli = fopen ("cliente.dat","rb");
+						pos = BuscaCli(PtrVenda,Venda.CPF);
+					
+						Cli.status = 'I';
+						fseek(PtrCli,pos,0);
+						fwrite(&Cli,sizeof(tpCliente),1,PtrCli);
+						FILE *PtrVP = fopen ("VendProdutos.dat","rb"); 
+						pos = BuscaVP(PtrVP,Venda.CodVenda);
+						  fread(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+     	                	while(!feof(PtrVP))
+							{
+							   if(Venda.CodVenda== VendProd.CodVenda)
+		     	               {
+			     	                VendProd.status = 'I';
+									fseek(PtrVP,pos,0);
+									fwrite(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+									
+							   }
+							   fread(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+						    }
+						
+			       }
+			   }
+			   getch();
+				printf("Digite o Cod: ");
+				gets(Cod);
+		   }
+	   }
+	}
+	fclose(PtrVenda);
+}
 void ExclusaoLogCliente(void)
 {
 	FILE *PtrCli = fopen("cliente.dat","rb");
@@ -1709,22 +1795,33 @@ void ExclusaoLogCliente(void)
 					if(pos==-1)
 							printf("Nao tem produto registado");
 					else
-					{
-						Vend.status = 'I';
-						fseek(PtrVend,pos,0);
-						fwrite(&Vend,sizeof(tpVendas),1,PtrVend);
-						FILE *PtrVP = fopen ("VendProdutos.dat","rb"); 
-						pos = BuscaVP(PtrVP,Vend.CodVenda);
-     	                VendProd.status = 'I';
-						fseek(PtrVP,pos,0);
-						fwrite(&VendProd,sizeof(tpVendasProd),1,PtrVP);
-			            
+						{
+							Vend.status = 'I';
+							fseek(PtrVend,pos,0);
+							fwrite(&Vend,sizeof(tpVendas),1,PtrVend);
+							FILE *PtrVP = fopen ("VendProdutos.dat","rb"); 
+							pos = BuscaVP(PtrVP,Vend.CodVenda);
+							fread(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+							while(!feof(PtrVP))
+							{
+							   if(Vend.CodVenda== VendProd.CodVenda)
+		     	               {
+			     	                VendProd.status = 'I';
+									fseek(PtrVP,pos,0);
+									fwrite(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+									
+							   }
+							   fread(&VendProd,sizeof(tpVendasProd),1,PtrVP);
+						    }
+     		           }
 				    }
 				}
+				getch();
+				printf("Digite o CPF: ");
+				gets(Cli.CPF);
 			}
-		getch();
-		printf("Digite o CPF: ");
-		gets(Cli.CPF);
+		
+    	}
 	}
 	fclose(PtrCli);
 }
